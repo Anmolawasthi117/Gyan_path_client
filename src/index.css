@@ -1,0 +1,9 @@
+@import "tailwindcss";
+.leaflet-container {
+  background: #f0f0f0;
+}
+
+.node-marker {
+  background: none;
+  border: none;
+}
