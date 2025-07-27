@@ -6,7 +6,7 @@ import BottomNavPanel from '../components/navigation/BottomNavPanel';
 import FloorSelector from '../components/sidebar/FloorSelector';
 import SplashScreen from '../components/splash/SplashScreen';
 
-import nodesData from '../data/floor_1 final.json';
+import nodesData from '../data/nodes_floorG.json';
 import { distanceSq } from '../utils/math';
 import { dijkstra } from '../utils/dijkstra';
 
