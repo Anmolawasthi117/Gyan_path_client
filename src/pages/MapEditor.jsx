@@ -2,11 +2,13 @@
 import React, { useState } from 'react';
 import { saveAs } from 'file-saver';
 import Map from '../components/map/Map';
+import FloorSelector from '../components/sidebar/FloorSelector';
 
-const MapEditor = ({ currentFloor = 'G', onFloorChange = () => {} }) => {
+const MapEditor = () => {
   const [draftNodes, setDraftNodes] = useState([]);
   const [connectMode, setConnectMode] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [currentFloor, setCurrentFloor] = useState('G'); // 🔥 added floor state
 
   const handleClick = ({ x, y }) => {
     if (connectMode) return;
@@ -73,7 +75,14 @@ const MapEditor = ({ currentFloor = 'G', onFloorChange = () => {} }) => {
         onMarkerClick={(node) => handleNodeClick(node.nodeId)}
         selectedNodeId={selectedNodeId}
         currentFloor={currentFloor}
-        forceVisibleMarkers={true} 
+        forceVisibleMarkers={true}
+      />
+
+      {/* Floor Selector for switching maps */}
+      <FloorSelector
+        floors={['G', '1', 'MBA']}
+        currentFloor={currentFloor}
+        onChange={setCurrentFloor}
       />
 
       <div className="absolute bottom-4 right-4 flex gap-4">

@@ -75,7 +75,7 @@ const Home = () => {
         loading={false}
       />
       <FloorSelector
-        floors={['G', '1', '2', '3']}
+        floors={['G', '1', 'MBA']}  // updated
         currentFloor={currentFloor}
         onChange={setCurrentFloor}
       />

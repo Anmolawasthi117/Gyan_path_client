@@ -9,13 +9,22 @@ import {
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-import mapImage from '../../assets/map.jpeg';
+import mapFloorG from '../../assets/floor1_ggits.jpeg';
+import mapFloor2 from '../../assets/floor2_ggits.png';
+import mapMBA from '../../assets/floor1_mba.png';
+
 import MarkerLayer from './Marker';
 import RoutePolyline from './RoutePolyline';
 import ConnectedEdges from './ConnectedEdges';
 
 import { MAP_WIDTH, MAP_HEIGHT } from '../../utils/mapConfig';
 import { mapToGridCoords } from '../../utils/transformCoords';
+
+const floorImages = {
+  G: mapFloorG,      // default ground floor
+  "1": mapFloor2,    // first floor
+  MBA: mapMBA,       // MBA floor
+};
 
 const MapEvents = ({ onSelectLocation }) => {
   useMapEvents({
@@ -40,7 +49,7 @@ const Map = ({
   onMarkerClick,
   selectedNodeId,
   highlightedNodeId,
-  forceVisibleMarkers = false, // 🔥 added
+  forceVisibleMarkers = false,
 }) => {
   const allMarkers = useMemo(() => {
     const sameFloor = (n) =>
@@ -72,7 +81,10 @@ const Map = ({
           zoomControl={false}
           style={{ height: '100%', width: '100%' }}
         >
-          <ImageOverlay url={mapImage} bounds={bounds} />
+          <ImageOverlay
+            url={floorImages[currentFloor] || mapFloorG}
+            bounds={bounds}
+          />
           <ZoomControl position="bottomright" />
           {mode === 'admin' && <ConnectedEdges nodes={allMarkers} />}
           <MarkerLayer
@@ -81,7 +93,7 @@ const Map = ({
             onMarkerClick={onMarkerClick}
             selectedNodeId={selectedNodeId}
             highlightedNodeId={highlightedNodeId}
-            forceVisibleMarkers={forceVisibleMarkers} // 💥 new prop passed
+            forceVisibleMarkers={forceVisibleMarkers}
           />
           <RoutePolyline route={route} currentFloor={currentFloor} />
           {onSelectLocation && <MapEvents onSelectLocation={onSelectLocation} />}
