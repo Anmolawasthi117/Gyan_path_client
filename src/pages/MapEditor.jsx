@@ -8,7 +8,7 @@ const MapEditor = () => {
   const [draftNodes, setDraftNodes] = useState([]);
   const [connectMode, setConnectMode] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
-  const [currentFloor, setCurrentFloor] = useState('G'); // 🔥 added floor state
+  const [currentFloor, setCurrentFloor] = useState('G'); 
 
   const handleClick = ({ x, y }) => {
     if (connectMode) return;
@@ -77,8 +77,6 @@ const MapEditor = () => {
         currentFloor={currentFloor}
         forceVisibleMarkers={true}
       />
-
-      {/* Floor Selector for switching maps */}
       <FloorSelector
         floors={['G', '1', 'MBA']}
         currentFloor={currentFloor}
