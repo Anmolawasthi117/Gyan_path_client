@@ -10,7 +10,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 import mapFloorG from '../../assets/floor1_ggits.jpeg';
-import mapFloor2 from '../../assets/GGITS floor 2.jpg';
+import mapFloor2 from '../../assets/floor2_ggits.jpg';
 import mapMBA from '../../assets/floor1_mba.png';
 
 import MarkerLayer from './Marker';
