@@ -213,7 +213,7 @@
   },
   {
     "nodeId": "29b36973-f5ac-4605-bc04-b5c4fc265ab4",
-    "name": "stairs",
+    "name": "stair 4",
     "type": "stair",
     "coordinates": {
       "x": 15.27,
@@ -460,7 +460,7 @@
   },
   {
     "nodeId": "a2a051db-eec4-4688-bcde-59e165ce24cf",
-    "name": "stairs",
+    "name": "stair 3",
     "type": "stair",
     "coordinates": {
       "x": 17.06,
@@ -812,7 +812,7 @@
   },
   {
     "nodeId": "8a8afa95-10b4-47ad-a6b5-172567639b10",
-    "name": "stairs",
+    "name": "stair 6",
     "type": "stair",
     "coordinates": {
       "x": 5.52,
@@ -828,7 +828,7 @@
   },
   {
     "nodeId": "d5c105ec-3d6f-48d6-bb8f-7ff6f737b534",
-    "name": "stair",
+    "name": "stair 5",
     "type": "stair",
     "coordinates": {
       "x": 7.42,

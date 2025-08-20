@@ -19,9 +19,10 @@ const SearchBar = ({ nodes = [], onSelectNode }) => {
     const trimmed = debouncedQuery.trim().toLowerCase();
 
     if (trimmed.length >= MIN_SEARCH_CHARS) {
-      const filtered = nodes.filter((n) =>
-        n.name.toLowerCase().includes(trimmed)
-      );
+      const filtered = nodes.filter((n) => {
+        const name = n.name || n.nodeId || ""; // 🟢 commit: fallback
+        return name.toLowerCase().includes(trimmed);
+      });
       setResults(filtered);
       setShowDropdown(true);
     } else {
@@ -46,7 +47,7 @@ const SearchBar = ({ nodes = [], onSelectNode }) => {
   }, []);
 
   const handleSelect = (node) => {
-    setQuery(node.name);
+    setQuery(node.name || node.nodeId); // 🟢 commit: safe fallback
     setShowDropdown(false);
     onSelectNode?.(node);
   };
@@ -75,8 +76,12 @@ const SearchBar = ({ nodes = [], onSelectNode }) => {
               {results.map((node) => (
                 <SearchResult
                   key={node.nodeId}
-                  node={node}
-                  onSelect={handleSelect}
+                  node={{
+                    ...node,
+                    // 🟢 commit: show floor info in dropdown
+                    displayName: `${node.name || node.nodeId} (Floor ${node.coordinates?.floor || "?"})`
+                  }}
+                  onSelect={() => handleSelect(node)}
                 />
               ))}
             </ul>
