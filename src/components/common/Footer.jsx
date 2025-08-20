@@ -1,12 +1,11 @@
+// src/components/navigation/Footer.jsx
 const Footer = () => {
   return (
-    <footer className="bg-gray-800 text-white py-4">
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        <p>© 2025 GyanPath</p>
-        <div className="space-x-4">
-          <a href="/about" className="hover:underline">About</a>
-          <a href="/contact" className="hover:underline">Contact</a>
-        </div>
+    <footer className="bg-white shadow-inner border-t border-gray-200 py-3">
+      <div className="container mx-auto px-4 text-center text-sm text-gray-600">
+        © 2025 <span className="font-semibold">GyanPath</span> · Engineered by 
+        <span className="text-gray-800"> Anmol</span> & 
+        <span className="text-gray-800"> Nandini</span>
       </div>
     </footer>
   );

@@ -5,6 +5,7 @@ import SearchBar from '../components/search/SearchBar';
 import BottomNavPanel from '../components/navigation/BottomNavPanel';
 import FloorSelector from '../components/sidebar/FloorSelector';
 import SplashScreen from '../components/splash/SplashScreen';
+import Footer from '../components/common/Footer';
 
 import nodesFloorG from '../data/nodes_floorG.json';
 import nodesFloor1 from '../data/nodes_floor1.json';
@@ -125,7 +126,9 @@ const Home = () => {
         currentFloor={currentFloor}
         onChange={setCurrentFloor}
       />
+      <Footer />
     </div>
+    
   );
 };
 
