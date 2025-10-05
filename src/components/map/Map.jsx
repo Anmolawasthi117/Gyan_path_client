@@ -33,6 +33,7 @@ const Map = ({
   route = [],
   currentFloor,
   userLocation,
+  onSelectLocation, // 🔥 renamed for clarity — passed from Home.jsx
   onMarkerClick,
   selectedNodeId,
   highlightedNodeId,
@@ -48,13 +49,14 @@ const Map = ({
     offsetY: 0,
   });
 
+  // 🧠 Filter nodes to current floor
   const allMarkers = useMemo(() => {
     const sameFloor = (n) =>
       String(n?.coordinates?.floor) === String(currentFloor?.id);
     return [...nodes.filter(sameFloor), ...extraNodes.filter(sameFloor)];
   }, [nodes, extraNodes, currentFloor]);
 
-  // 🧠 Responsive scaling logic
+  // 🧩 Responsive scaling logic
   useLayoutEffect(() => {
     const el = outerRef.current;
     if (!el) return;
@@ -78,7 +80,7 @@ const Map = ({
       setRenderInfo({ width, height, offsetX, offsetY });
     };
 
-    handleResize(); // initial call
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -96,6 +98,22 @@ const Map = ({
     userSelect: "none",
   };
 
+  // 🖱️ Handle user double-click to set location
+  const handleDoubleClick = (e) => {
+    if (!outerRef.current || !onSelectLocation) return;
+
+    const rect = outerRef.current.getBoundingClientRect();
+    const xPx = e.clientX - rect.left - renderInfo.offsetX;
+    const yPx = e.clientY - rect.top - renderInfo.offsetY;
+
+    // convert to % relative to floor image
+    const xPct = (xPx / renderInfo.width) * 100;
+    const yPct = (yPx / renderInfo.height) * 100;
+
+    // emit point up to Home.jsx
+    onSelectLocation({ x: xPct, y: yPct });
+  };
+
   return (
     <div
       ref={outerRef}
@@ -110,25 +128,13 @@ const Map = ({
         draggable={false}
       />
 
-      {/* Debug Border (remove in prod) */}
-      {/* <div
-        style={{
-          position: "absolute",
-          width: renderInfo.width,
-          height: renderInfo.height,
-          left: renderInfo.offsetX,
-          top: renderInfo.offsetY,
-          border: "2px dashed #aaa",
-          pointerEvents: "none",
-        }}
-      /> */}
-
-      {/* Node Layers */}
+      {/* Interactive Layers */}
       {renderInfo.width > 0 && renderInfo.height > 0 && (
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "auto" }}>
-          
-            <ConnectedEdges nodes={allMarkers} renderInfo={renderInfo} />
-         
+        <div
+          style={{ position: "absolute", inset: 0, pointerEvents: "auto" }}
+          onDoubleClick={handleDoubleClick}
+        >
+          <ConnectedEdges nodes={allMarkers} renderInfo={renderInfo} />
 
           <MarkerLayer
             nodes={allMarkers}

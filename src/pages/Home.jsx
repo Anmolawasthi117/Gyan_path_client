@@ -7,11 +7,11 @@ import FloorSelector from "../components/sidebar/FloorSelector";
 import SplashScreen from "../components/splash/SplashScreen";
 import Footer from "../components/common/Footer";
 
-import projectSchema from "../data/project-schema-final.json"; // 🟢 single JSON
+import projectSchema from "../data/project-schema-final.json";
 
 import { distanceSq } from "../utils/math";
-import { dijkstra } from "../utils/dijkstra";
 import { splitPathByFloor } from "../utils/splitPathByFloor";
+import { findMultiFloorPath } from "../utils/multiFloorRoute"; // 🆕 new helper
 
 const Home = () => {
   const [nodes, setNodes] = useState([]);
@@ -25,69 +25,74 @@ const Home = () => {
   const [isNavigating, setIsNavigating] = useState(false);
 
   useEffect(() => {
-    const { floors, connections } = projectSchema;
+    const { floors } = projectSchema;
     setFloors(floors);
 
-    // flatten all floor nodes into one array
     const mergedNodes = floors.flatMap((f) =>
       f.nodes.map((n) => ({ ...n, floorId: f.id }))
     );
-
-    // TODO: merge global connections into node graphs if needed
     setNodes(mergedNodes);
 
-    // default floor = first one
     if (floors.length > 0) setCurrentFloor(floors[0]);
 
     setTimeout(() => setShowSplash(false), 1500);
   }, []);
 
-  const nearestNode = useCallback(
-    (pt) => {
-      let best = null,
-        bestD = Infinity;
-      nodes.forEach((n) => {
-        const d = distanceSq(pt.x, pt.y, n.coordinates.x, n.coordinates.y);
-        if (d < bestD) {
-          best = n;
-          bestD = d;
-        }
-      });
-      return best;
-    },
-    [nodes]
-  );
+  const nearestNode = useCallback((pt, floorId) => {
+  let best = null, bestD = Infinity;
+  nodes.forEach((n) => {
+    if (String(n.coordinates.floor) !== String(floorId)) return; // ✅ critical
+    const d = distanceSq(pt.x, pt.y, n.coordinates.x, n.coordinates.y);
+    if (d < bestD) { best = n; bestD = d; }
+  });
+  return best;
+}, [nodes]);
+
 
   const handleMapClick = (pt) => {
-    setUserLoc(pt);
-    const nearest = nearestNode(pt);
+    const nearest = nearestNode(pt,currentFloor?.id);
     if (nearest) {
-      console.log(
-        "🟢 Start node set:",
-        nearest.name,
-        nearest.coordinates.floor
-      );
+      console.log("🟢 [User Click] Nearest node:", nearest.name, nearest);
+      setUserLoc(pt);
       setStartNode(nearest);
     }
   };
 
   const handleDestSelect = (node) => {
-    setEndNode(node);
-    if (!startNode?.nodeId) {
-      console.warn("⚠️ Set your location first (double-tap the map).");
-      return;
-    }
+  setEndNode(node);
+  if (!startNode?.nodeId) {
+    console.warn("⚠️ Set your location first (double-tap the map).");
+    return;
+  }
 
-    const path = dijkstra(startNode.nodeId, node.nodeId, nodes);
-    setRoute(path);
-    setIsNavigating(true);
-  };
+  console.log(
+    "🚀 Running multi-floor Dijkstra from",
+    startNode.name,
+    "→",
+    node.name
+  );
+
+  const path = findMultiFloorPath(projectSchema, startNode.nodeId, node.nodeId);
+  console.log("✅ [Full Route Result]", path.map((n) => n.name));
+
+  setRoute(path);
+  setIsNavigating(true);
+};
 
   if (showSplash) return <SplashScreen />;
 
   const segments = splitPathByFloor(route);
+  console.log("🧩 [Split Route Segments]", segments);
+
   const currentSegment =
     segments.find((seg) => seg.floor === currentFloor?.id)?.nodes || [];
+
+  console.log(
+    "🗺️ [Render Floor]",
+    currentFloor?.name,
+    "with segment:",
+    currentSegment.map((n) => n.name)
+  );
 
   return (
     <div className="relative w-full h-screen bg-gray-100 overflow-hidden">
@@ -108,12 +113,14 @@ const Home = () => {
         loading={false}
         currentFloor={currentFloor?.id}
         onFloorChange={(nextFloorId) => {
+          console.log("🔁 [Floor Change Requested]", nextFloorId);
           const floorObj = floors.find((f) => f.id === nextFloorId);
           setCurrentFloor(floorObj);
 
           const seg = segments.find((s) => s.floor === nextFloorId);
           if (seg && seg.nodes.length > 0) {
             const stairNode = seg.nodes[0];
+            console.log("🚶 [Switched Floor Start Node]", stairNode.name);
             setStartNode(stairNode);
             setUserLoc(stairNode.coordinates);
           }

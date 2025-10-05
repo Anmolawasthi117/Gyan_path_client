@@ -1,33 +1,48 @@
 // src/components/map/RoutePolyline.jsx
-import React from 'react';
-import { Polyline } from 'react-leaflet';
-import { gridToMapCoords } from '../../utils/transformCoords';
+import React from "react";
 
-/**
- * Draws a blue polyline for the current floor.
- * Supports both: { coordinates: {x, y, floor} } and flat { x, y, floor }
- */
-const RoutePolyline = ({ route,  }) => {
-  if (!Array.isArray(route) || route.length === 0) return null;
+const RoutePolyline = ({ route = [], renderSize }) => {
+  if (!route || route.length < 2) return null;
 
-  const latLngs = route
-    // .filter((p) => {
-    //   const floor = p.coordinates?.floor ?? p.floor ?? 'G'; // safer fallback order
-    //   return String(floor) === String(currentFloor);
-    // })
-    .map((p) => {
-      const { x, y } = p.coordinates ?? p;
-      const { lat, lng } = gridToMapCoords({ x, y });
-      return [lat, lng];
-    })
-    .filter(([lat, lng]) => lat !== undefined && lng !== undefined); // skip invalid points
+  console.log("🧭 [Drawing Polyline for Route]", route.map((n) => n.name));
 
-  return latLngs.length ? (
-    <Polyline
-      positions={latLngs}
-      pathOptions={{ color: '#0ea5e9', weight: 4 }}
-    />
-  ) : null;
+  const getScreenPosition = (coords) => {
+    const x = renderSize.offsetX + (coords.x / 100) * renderSize.width;
+    const y = renderSize.offsetY + (coords.y / 100) * renderSize.height;
+    return { x, y };
+  };
+
+  const lines = [];
+
+  for (let i = 0; i < route.length - 1; i++) {
+    const from = getScreenPosition(route[i].coordinates);
+    const to = getScreenPosition(route[i + 1].coordinates);
+
+    const length = Math.hypot(to.x - from.x, to.y - from.y);
+    const angle = Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI);
+
+    lines.push(
+      <div
+        key={`${route[i].nodeId}-${route[i + 1].nodeId}`}
+        style={{
+          position: "absolute",
+          left: from.x,
+          top: from.y,
+          width: length,
+          height: 3,
+          backgroundColor: "#0ea5e9",
+          transformOrigin: "0 0",
+          transform: `rotate(${angle}deg)`,
+          opacity: 0.9,
+          borderRadius: 2,
+          pointerEvents: "none",
+          zIndex: 5,
+        }}
+      />
+    );
+  }
+
+  return <>{lines}</>;
 };
 
 export default RoutePolyline;
