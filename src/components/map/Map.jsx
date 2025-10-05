@@ -1,92 +1,135 @@
-// src/components/map/Map.jsx
-import React, { useMemo } from 'react';
-import {
-  MapContainer,
-  ImageOverlay,
-  useMapEvents,
-  ZoomControl,
-} from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useMemo, useRef, useState, useLayoutEffect } from "react";
+import MarkerLayer from "./Marker";
+import ConnectedEdges from "./ConnectedEdges";
+import RoutePolyline from "./RoutePolyline";
 
-import mapFloorG from '../../assets/floor1_ggits.jpeg';
-import mapFloor2 from '../../assets/floor2_ggits.jpg';
-import mapMBA from '../../assets/floor1_mba.png';
-
-import MarkerLayer from './Marker';
-import RoutePolyline from './RoutePolyline';
-import ConnectedEdges from './ConnectedEdges';
-
-import { MAP_WIDTH, MAP_HEIGHT } from '../../utils/mapConfig';
-import { mapToGridCoords } from '../../utils/transformCoords';
+import groundFloor from "../../assets/final maps/GGITS_Canteen.png";
+import firstFloor from "../../assets/final maps/GGITS floor 2/1.png";
+import secondFloor from "../../assets/final maps/GGITS floor 2/2.png";
+import thirdFloor from "../../assets/final maps/GGITS floor 2/3.png";
+import fourthFloor from "../../assets/final maps/GGITS floor 2/4.png";
+import Civil from "../../assets/final maps/MBA 2/Civil Dept.png";
+import IOT from "../../assets/final maps/MBA 2/IOT FLOOR.png";
+import MBA from "../../assets/final maps/MBA 2/MBA ground Floor.png";
+import Pharmaceutics from "../../assets/final maps/MBA 2/Pharmaceutics floor.png";
 
 const floorImages = {
-  G: mapFloorG,      // default ground floor
-  "1": mapFloor2,    // first floor
-  MBA: mapMBA,       // MBA floor
+  "f1e15172-3c60-49e8-a03d-04435a6fdbe0": groundFloor,
+  "b963f437-1372-44d7-8e93-32d119fa0b26": firstFloor,
+  "d69a80f9-033b-4ba8-937f-d56a53d47631": secondFloor,
+  "398027a5-dab8-4ca3-acb0-cc86e2bc3751": thirdFloor,
+  "b314e388-6dfc-41c8-a740-9a263b8343ff": fourthFloor,
+  "3986c025-3ca6-4a24-a6a9-f042cf222bdd": Civil,
+  "b4319f20-f88f-43ee-acc1-fdf5e605264a": IOT,
+  "e92ee147-5156-48d9-be08-bf2eddfd33cc": MBA,
+  "a7fe434e-46d3-44c3-8c2e-95fa05411abf": Pharmaceutics,
 };
 
-const MapEvents = ({ onSelectLocation }) => {
-  useMapEvents({
-    dblclick(e) {
-      if (!onSelectLocation) return;
-      const { lat, lng } = e.latlng;
-      const { x, y } = mapToGridCoords({ lat, lng });
-      onSelectLocation({ x, y });
-    },
-  });
-  return null;
-};
+const MAGIC_WIDTH = 960;
+const MAGIC_HEIGHT = 653.6;
 
 const Map = ({
-  mode = 'user',
-  userLocation,
-  onSelectLocation,
   nodes = [],
   route = [],
-  currentFloor = 'G',
-  extraNodes = [],
+  currentFloor,
+  userLocation,
   onMarkerClick,
   selectedNodeId,
   highlightedNodeId,
   forceVisibleMarkers = false,
+  extraNodes = [],
 }) => {
+  const outerRef = useRef(null);
+
+  const [renderInfo, setRenderInfo] = useState({
+    width: MAGIC_WIDTH,
+    height: MAGIC_HEIGHT,
+    offsetX: 0,
+    offsetY: 0,
+  });
+
   const allMarkers = useMemo(() => {
     const sameFloor = (n) =>
-      String(n?.coordinates?.floor) === String(currentFloor);
+      String(n?.coordinates?.floor) === String(currentFloor?.id);
     return [...nodes.filter(sameFloor), ...extraNodes.filter(sameFloor)];
   }, [nodes, extraNodes, currentFloor]);
 
-  const bounds = useMemo(
-    () => [
-      [0, 0],
-      [MAP_HEIGHT, MAP_WIDTH],
-    ],
-    []
-  );
+  // 🧠 Responsive scaling logic
+  useLayoutEffect(() => {
+    const el = outerRef.current;
+    if (!el) return;
+
+    const handleResize = () => {
+      const cw = el.clientWidth;
+      const ch = el.clientHeight;
+
+      const aspect = MAGIC_WIDTH / MAGIC_HEIGHT;
+      let width = cw;
+      let height = cw / aspect;
+
+      if (height > ch) {
+        height = ch;
+        width = ch * aspect;
+      }
+
+      const offsetX = (cw - width) / 2;
+      const offsetY = (ch - height) / 2;
+
+      setRenderInfo({ width, height, offsetX, offsetY });
+    };
+
+    handleResize(); // initial call
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const src = floorImages[currentFloor?.id] || groundFloor;
+
+  const imageStyle = {
+    width: renderInfo.width,
+    height: renderInfo.height,
+    left: renderInfo.offsetX,
+    top: renderInfo.offsetY,
+    position: "absolute",
+    objectFit: "contain",
+    pointerEvents: "none",
+    userSelect: "none",
+  };
 
   return (
-    <div className="absolute inset-0 w-full h-full z-0 bg-gray-200">
-      <div className="w-full h-full shadow-xl rounded-b-2xl overflow-hidden">
-        <MapContainer
-          crs={L.CRS.Simple}
-          bounds={bounds}
-          maxBounds={bounds}
-          maxBoundsViscosity={1.0}
-          maxZoom={5}
-          minZoom={-2}
-          zoomSnap={0.5}
-          zoomDelta={0.5}
-          doubleClickZoom={false}
-          zoomControl={false}
-          style={{ height: '100%', width: '100%' }}
-        >
-          <ImageOverlay
-            url={floorImages[currentFloor] || mapFloorG}
-            bounds={bounds}
-          />
-          <ZoomControl position="bottomright" />
-          {mode === 'admin' && <ConnectedEdges nodes={allMarkers} />}
+    <div
+      ref={outerRef}
+      className="absolute inset-0 w-full h-full flex items-center justify-center bg-gray-200"
+      style={{ overflow: "hidden", touchAction: "none" }}
+    >
+      {/* Floor Image */}
+      <img
+        src={src}
+        alt={currentFloor?.name || "Floor"}
+        style={imageStyle}
+        draggable={false}
+      />
+
+      {/* Debug Border (remove in prod) */}
+      {/* <div
+        style={{
+          position: "absolute",
+          width: renderInfo.width,
+          height: renderInfo.height,
+          left: renderInfo.offsetX,
+          top: renderInfo.offsetY,
+          border: "2px dashed #aaa",
+          pointerEvents: "none",
+        }}
+      /> */}
+
+      {/* Node Layers */}
+      {renderInfo.width > 0 && renderInfo.height > 0 && (
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "auto" }}>
+          
+            <ConnectedEdges nodes={allMarkers} renderInfo={renderInfo} />
+         
+
           <MarkerLayer
             nodes={allMarkers}
             userLocation={userLocation}
@@ -94,11 +137,16 @@ const Map = ({
             selectedNodeId={selectedNodeId}
             highlightedNodeId={highlightedNodeId}
             forceVisibleMarkers={forceVisibleMarkers}
+            renderSize={renderInfo}
           />
-          <RoutePolyline route={route} currentFloor={currentFloor} />
-          {onSelectLocation && <MapEvents onSelectLocation={onSelectLocation} />}
-        </MapContainer>
-      </div>
+
+          <RoutePolyline
+            route={route}
+            currentFloor={currentFloor?.id}
+            renderSize={renderInfo}
+          />
+        </div>
+      )}
     </div>
   );
 };

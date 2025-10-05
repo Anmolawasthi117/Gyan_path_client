@@ -1,92 +1,116 @@
-import React from 'react';
-import { CircleMarker, Tooltip } from 'react-leaflet';
-import { gridToMapCoords } from '../../utils/transformCoords';
-import { MAP_HEIGHT, GRID_HEIGHT } from '../../utils/mapConfig';
+import React, { useState, useEffect } from "react";
 
-/**
- * MarkerLayer – renders invisible tap‑targets for nodes + visible blue‑dot.
- * Nodes are fully transparent unless selected/highlighted or `forceVisibleMarkers` is true.
- */
 const MarkerLayer = ({
   nodes = [],
   userLocation,
   onMarkerClick,
   selectedNodeId,
   highlightedNodeId,
-  forceVisibleMarkers = false,
+  renderSize = { width: 0, height: 0, offsetX: 0, offsetY: 0 },
+  zoom = 1,
 }) => {
-  if (!nodes.length && !userLocation) return null;
+  const [activeTooltip, setActiveTooltip] = useState(null); // which node's tooltip is open
 
-  const renderCircle = (
-    latLng,
-    key,
-    { visible = false, color = '#333', radius = 6, tooltip, onClick } = {}
-  ) => (
-    <CircleMarker
-      key={key}
-      center={latLng}
-      radius={radius}
-      pathOptions={{
-        color: visible ? color : 'transparent',
-        fillColor: visible ? color : 'transparent',
-        opacity: visible ? 1 : 0,
-        fillOpacity: visible ? 0.9 : 0,
-      }}
-      eventHandlers={onClick && { click: onClick }}
-    >
-      {visible && tooltip && (
-        <Tooltip direction="top" offset={[0, -8]} opacity={1}>
-          {tooltip}
-        </Tooltip>
-      )}
-    </CircleMarker>
-  );
+  useEffect(() => {
+    // close tooltip when clicking outside markers (mobile-friendly)
+    const handleClickOutside = () => setActiveTooltip(null);
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, []);
+
+  if (!renderSize.width || !renderSize.height) return null;
+
+  const BASE_RADIUS = 6;
+
+  const getScreenPosition = (node) => {
+    const coords = node.coordinates ? node.coordinates : node;
+    const pctX = Number(coords.x);
+    const pctY = Number(coords.y);
+
+    const x = renderSize.offsetX + (pctX / 100) * renderSize.width;
+    const y = renderSize.offsetY + (pctY / 100) * renderSize.height;
+    return { x, y };
+  };
+
+  const renderDot = (node, key, { color = "#333", tooltip } = {}) => {
+    const pos = getScreenPosition(node);
+    const size = BASE_RADIUS * 2;
+    const isActive = activeTooltip === key;
+
+    return (
+      <div
+        key={key}
+        onMouseEnter={() => setActiveTooltip(key)}
+        onMouseLeave={() => setActiveTooltip(null)}
+        onClick={(e) => {
+          e.stopPropagation();
+          // toggle tooltip on mobile tap
+          setActiveTooltip((prev) => (prev === key ? null : key));
+          onMarkerClick?.(node);
+        }}
+        style={{
+          position: "absolute",
+          left: pos.x,
+          top: pos.y,
+          transform: "translate(-50%, -50%)",
+          width: size / zoom,
+          height: size / zoom,
+          borderRadius: "50%",
+          backgroundColor: color,
+          opacity: 0.9,
+          cursor: "pointer",
+          transition: "all 0.15s ease-out",
+          pointerEvents: "auto",
+          zIndex: isActive ? 10 : 1,
+        }}
+      >
+        {tooltip && isActive && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: "150%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              backgroundColor: "#222",
+              color: "white",
+              padding: "4px 8px",
+              borderRadius: "4px",
+              fontSize: "12px",
+              whiteSpace: "nowrap",
+              opacity: 0.95,
+              pointerEvents: "none",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+            }}
+          >
+            {tooltip}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
-      {/* Node markers */}
       {nodes.map((node) => {
-        const { lat, lng } = gridToMapCoords(
-          node.coordinates,
-          MAP_HEIGHT,
-          GRID_HEIGHT
-        );
-
         const isHighlighted = highlightedNodeId === node.nodeId;
         const isSelected = selectedNodeId === node.nodeId;
-        const visible = forceVisibleMarkers || isHighlighted || isSelected;
-
         const color = isHighlighted
-          ? 'limegreen'
+          ? "limegreen"
           : isSelected
-          ? 'red'
-          : '#333';
+          ? "red"
+          : "#333";
 
-        return renderCircle([lat, lng], node.nodeId, {
-          visible,
+        return renderDot(node, node.nodeId, {
           color,
-          radius: visible ? 6 : 12,
           tooltip: node.name,
-          onClick: () => onMarkerClick?.(node),
         });
       })}
 
-      {/* Blue-dot user location */}
       {userLocation &&
-        (() => {
-          const point = userLocation.coordinates ?? userLocation;
-          const { lat, lng } = gridToMapCoords(
-            point,
-            MAP_HEIGHT,
-            GRID_HEIGHT
-          );
-          return renderCircle([lat, lng], 'user-dot', {
-            visible: true,
-            color: 'dodgerblue',
-            radius: 7,
-            tooltip: 'You',
-          });
-        })()}
+        renderDot(userLocation, "user-dot", {
+          color: "dodgerblue",
+          tooltip: "You",
+        })}
     </>
   );
 };

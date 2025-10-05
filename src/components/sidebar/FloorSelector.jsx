@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const FloorSelector = ({ floors = [], currentFloor, onChange }) => {
   const [open, setOpen] = useState(false);
 
-  const handleSelect = (floor) => {
-    onChange?.(floor);
+  const handleSelect = (floorObj) => {
+    onChange?.(floorObj);
     setOpen(false);
   };
 
@@ -15,7 +15,7 @@ const FloorSelector = ({ floors = [], currentFloor, onChange }) => {
         onClick={() => setOpen(!open)}
         className="bg-blue-600 text-white text-sm px-4 py-2 rounded-xl shadow-lg backdrop-blur hover:bg-blue-700 transition-all"
       >
-        Floor: {currentFloor} ⌄
+        Floor: {currentFloor?.name || "Select"} ⌄
       </button>
 
       <AnimatePresence>
@@ -28,15 +28,15 @@ const FloorSelector = ({ floors = [], currentFloor, onChange }) => {
           >
             {floors.map((floor) => (
               <button
-                key={floor}
+                key={floor.id}
                 onClick={() => handleSelect(floor)}
                 className={`px-4 py-2 rounded-lg text-sm ${
-                  floor === currentFloor
-                    ? 'bg-blue-500 text-white'
-                    : 'hover:bg-gray-100'
+                  floor.id === currentFloor?.id
+                    ? "bg-blue-500 text-white"
+                    : "hover:bg-gray-100"
                 }`}
               >
-                Floor {floor}
+                {floor.name}
               </button>
             ))}
           </motion.div>
