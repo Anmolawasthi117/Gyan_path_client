@@ -8,11 +8,11 @@ const MarkerLayer = ({
   highlightedNodeId,
   renderSize = { width: 0, height: 0, offsetX: 0, offsetY: 0 },
   zoom = 1,
+  dimNonUserNodes = false, // 👈 NEW FLAG for Map
 }) => {
-  const [activeTooltip, setActiveTooltip] = useState(null); // which node's tooltip is open
+  const [activeTooltip, setActiveTooltip] = useState(null);
 
   useEffect(() => {
-    // close tooltip when clicking outside markers (mobile-friendly)
     const handleClickOutside = () => setActiveTooltip(null);
     window.addEventListener("click", handleClickOutside);
     return () => window.removeEventListener("click", handleClickOutside);
@@ -32,7 +32,7 @@ const MarkerLayer = ({
     return { x, y };
   };
 
-  const renderDot = (node, key, { color = "#333", tooltip } = {}) => {
+  const renderDot = (node, key, { color = "#333", tooltip, opacity = 1 }) => {
     const pos = getScreenPosition(node);
     const size = BASE_RADIUS * 2;
     const isActive = activeTooltip === key;
@@ -44,7 +44,6 @@ const MarkerLayer = ({
         onMouseLeave={() => setActiveTooltip(null)}
         onClick={(e) => {
           e.stopPropagation();
-          // toggle tooltip on mobile tap
           setActiveTooltip((prev) => (prev === key ? null : key));
           onMarkerClick?.(node);
         }}
@@ -57,7 +56,7 @@ const MarkerLayer = ({
           height: size / zoom,
           borderRadius: "50%",
           backgroundColor: color,
-          opacity: 0.9,
+          opacity,
           cursor: "pointer",
           transition: "all 0.15s ease-out",
           pointerEvents: "auto",
@@ -94,15 +93,22 @@ const MarkerLayer = ({
       {nodes.map((node) => {
         const isHighlighted = highlightedNodeId === node.nodeId;
         const isSelected = selectedNodeId === node.nodeId;
+
+        // 👻 If dim mode enabled, fade out everything except user + route
         const color = isHighlighted
           ? "limegreen"
           : isSelected
           ? "red"
+          : dimNonUserNodes
+          ? "#666"
           : "#333";
+
+        const opacity = dimNonUserNodes && !isSelected && !isHighlighted ? 0 : 0.9;
 
         return renderDot(node, node.nodeId, {
           color,
           tooltip: node.name,
+          opacity,
         });
       })}
 
@@ -110,6 +116,7 @@ const MarkerLayer = ({
         renderDot(userLocation, "user-dot", {
           color: "dodgerblue",
           tooltip: "You",
+          opacity: 1,
         })}
     </>
   );

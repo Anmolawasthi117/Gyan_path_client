@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import Map from "../components/map/Map";
 import SearchBar from "../components/search/SearchBar";
@@ -8,10 +7,9 @@ import SplashScreen from "../components/splash/SplashScreen";
 import Footer from "../components/common/Footer";
 
 import projectSchema from "../data/project-schema-final.json";
-
 import { distanceSq } from "../utils/math";
 import { splitPathByFloor } from "../utils/splitPathByFloor";
-import { findMultiFloorPath } from "../utils/multiFloorRoute"; // 🆕 new helper
+import { findMultiFloorPath } from "../utils/multiFloorRoute";
 
 const Home = () => {
   const [nodes, setNodes] = useState([]);
@@ -34,23 +32,28 @@ const Home = () => {
     setNodes(mergedNodes);
 
     if (floors.length > 0) setCurrentFloor(floors[0]);
-
     setTimeout(() => setShowSplash(false), 1500);
   }, []);
 
-  const nearestNode = useCallback((pt, floorId) => {
-  let best = null, bestD = Infinity;
-  nodes.forEach((n) => {
-    if (String(n.coordinates.floor) !== String(floorId)) return; // ✅ critical
-    const d = distanceSq(pt.x, pt.y, n.coordinates.x, n.coordinates.y);
-    if (d < bestD) { best = n; bestD = d; }
-  });
-  return best;
-}, [nodes]);
-
+  const nearestNode = useCallback(
+    (pt, floorId) => {
+      let best = null,
+        bestD = Infinity;
+      nodes.forEach((n) => {
+        if (String(n.coordinates.floor) !== String(floorId)) return;
+        const d = distanceSq(pt.x, pt.y, n.coordinates.x, n.coordinates.y);
+        if (d < bestD) {
+          best = n;
+          bestD = d;
+        }
+      });
+      return best;
+    },
+    [nodes]
+  );
 
   const handleMapClick = (pt) => {
-    const nearest = nearestNode(pt,currentFloor?.id);
+    const nearest = nearestNode(pt, currentFloor?.id);
     if (nearest) {
       console.log("🟢 [User Click] Nearest node:", nearest.name, nearest);
       setUserLoc(pt);
@@ -59,40 +62,38 @@ const Home = () => {
   };
 
   const handleDestSelect = (node) => {
-  setEndNode(node);
-  if (!startNode?.nodeId) {
-    console.warn("⚠️ Set your location first (double-tap the map).");
-    return;
-  }
+    setEndNode(node);
+    if (!startNode?.nodeId) {
+      console.warn("⚠️ Set your location first (double-tap the map).");
+      return;
+    }
 
-  console.log(
-    "🚀 Running multi-floor Dijkstra from",
-    startNode.name,
-    "→",
-    node.name
-  );
+    console.log(
+      "🚀 Running multi-floor Dijkstra from",
+      startNode.name,
+      "→",
+      node.name
+    );
 
-  const path = findMultiFloorPath(projectSchema, startNode.nodeId, node.nodeId);
-  console.log("✅ [Full Route Result]", path.map((n) => n.name));
+    const path = findMultiFloorPath(
+      projectSchema,
+      startNode.nodeId,
+      node.nodeId
+    );
+    console.log(
+      "✅ [Full Route Result]",
+      path.map((n) => n.name)
+    );
 
-  setRoute(path);
-  setIsNavigating(true);
-};
+    setRoute(path);
+    setIsNavigating(true);
+  };
 
   if (showSplash) return <SplashScreen />;
 
   const segments = splitPathByFloor(route);
-  console.log("🧩 [Split Route Segments]", segments);
-
   const currentSegment =
     segments.find((seg) => seg.floor === currentFloor?.id)?.nodes || [];
-
-  console.log(
-    "🗺️ [Render Floor]",
-    currentFloor?.name,
-    "with segment:",
-    currentSegment.map((n) => n.name)
-  );
 
   return (
     <div className="relative w-full h-screen bg-gray-100 overflow-hidden">
@@ -112,6 +113,7 @@ const Home = () => {
         isNavigating={isNavigating}
         loading={false}
         currentFloor={currentFloor?.id}
+        floors={floors} // ✅ pass full floor list
         onFloorChange={(nextFloorId) => {
           console.log("🔁 [Floor Change Requested]", nextFloorId);
           const floorObj = floors.find((f) => f.id === nextFloorId);

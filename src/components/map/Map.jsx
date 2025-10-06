@@ -1,6 +1,5 @@
 import React, { useMemo, useRef, useState, useLayoutEffect } from "react";
 import MarkerLayer from "./Marker";
-import ConnectedEdges from "./ConnectedEdges";
 import RoutePolyline from "./RoutePolyline";
 
 import groundFloor from "../../assets/final maps/GGITS_Canteen.png";
@@ -33,7 +32,7 @@ const Map = ({
   route = [],
   currentFloor,
   userLocation,
-  onSelectLocation, // 🔥 renamed for clarity — passed from Home.jsx
+  onSelectLocation,
   onMarkerClick,
   selectedNodeId,
   highlightedNodeId,
@@ -41,7 +40,6 @@ const Map = ({
   extraNodes = [],
 }) => {
   const outerRef = useRef(null);
-
   const [renderInfo, setRenderInfo] = useState({
     width: MAGIC_WIDTH,
     height: MAGIC_HEIGHT,
@@ -49,14 +47,12 @@ const Map = ({
     offsetY: 0,
   });
 
-  // 🧠 Filter nodes to current floor
   const allMarkers = useMemo(() => {
     const sameFloor = (n) =>
       String(n?.coordinates?.floor) === String(currentFloor?.id);
     return [...nodes.filter(sameFloor), ...extraNodes.filter(sameFloor)];
   }, [nodes, extraNodes, currentFloor]);
 
-  // 🧩 Responsive scaling logic
   useLayoutEffect(() => {
     const el = outerRef.current;
     if (!el) return;
@@ -98,7 +94,6 @@ const Map = ({
     userSelect: "none",
   };
 
-  // 🖱️ Handle user double-click to set location
   const handleDoubleClick = (e) => {
     if (!outerRef.current || !onSelectLocation) return;
 
@@ -106,11 +101,9 @@ const Map = ({
     const xPx = e.clientX - rect.left - renderInfo.offsetX;
     const yPx = e.clientY - rect.top - renderInfo.offsetY;
 
-    // convert to % relative to floor image
     const xPct = (xPx / renderInfo.width) * 100;
     const yPct = (yPx / renderInfo.height) * 100;
 
-    // emit point up to Home.jsx
     onSelectLocation({ x: xPct, y: yPct });
   };
 
@@ -120,7 +113,6 @@ const Map = ({
       className="absolute inset-0 w-full h-full flex items-center justify-center bg-gray-200"
       style={{ overflow: "hidden", touchAction: "none" }}
     >
-      {/* Floor Image */}
       <img
         src={src}
         alt={currentFloor?.name || "Floor"}
@@ -128,14 +120,12 @@ const Map = ({
         draggable={false}
       />
 
-      {/* Interactive Layers */}
       {renderInfo.width > 0 && renderInfo.height > 0 && (
         <div
           style={{ position: "absolute", inset: 0, pointerEvents: "auto" }}
           onDoubleClick={handleDoubleClick}
         >
-          <ConnectedEdges nodes={allMarkers} renderInfo={renderInfo} />
-
+          {/* 👻 Transparent nodes only */}
           <MarkerLayer
             nodes={allMarkers}
             userLocation={userLocation}
@@ -144,8 +134,10 @@ const Map = ({
             highlightedNodeId={highlightedNodeId}
             forceVisibleMarkers={forceVisibleMarkers}
             renderSize={renderInfo}
+            dimNonUserNodes={true}
           />
 
+          {/* 🔥 Keep route visible */}
           <RoutePolyline
             route={route}
             currentFloor={currentFloor?.id}
