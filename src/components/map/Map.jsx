@@ -142,6 +142,7 @@ const Map = ({
             route={route}
             currentFloor={currentFloor?.id}
             renderSize={renderInfo}
+             userLocation={userLocation}
           />
         </div>
       )}
