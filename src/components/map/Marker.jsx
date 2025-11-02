@@ -9,13 +9,14 @@ const MarkerLayer = ({
   onMarkerClick,
   selectedNodeId,
   highlightedNodeId,
+  destinationNodeId, // ✅ new prop
 }) => {
-  if (!nodes.length && !userLocation) return null;
+  if (!nodes.length && !userLocation && !destinationNodeId) return null;
 
   const renderCircle = (
     latLng,
     key,
-    { color = "#333", radius = 6, tooltip, onClick, visible = true } = {}
+    { color = "#333", radius = 6, tooltip, onClick, visible = true, dashArray } = {}
   ) => (
     <CircleMarker
       key={key}
@@ -24,6 +25,7 @@ const MarkerLayer = ({
       pathOptions={{
         color,
         fillColor: color,
+        dashArray,
         opacity: visible ? 1 : 0,
         fillOpacity: visible ? 0.9 : 0,
       }}
@@ -49,22 +51,27 @@ const MarkerLayer = ({
           ...node.coordinates,
           floor: currentFloorId,
         });
-        const color =
-          highlightedNodeId === node.nodeId
-            ? "limegreen"
-            : selectedNodeId === node.nodeId
-            ? "red"
-            : "#333";
 
-        // Tooltip only if it's a room
-        const tooltip = node.type === "room" ? node.name : null;
+        const isDestination = node.nodeId === destinationNodeId;
+        const isHighlighted = highlightedNodeId === node.nodeId;
+        const isSelected = selectedNodeId === node.nodeId;
+
+        // Different color priorities
+        let color = "#333";
+        if (isDestination) color = "#00D100";
+        else if (isHighlighted) color = "limegreen";
+        else if (isSelected) color = "red";
+
+        const tooltip =
+          node.type === "room" || isDestination ? node.name : null;
 
         return renderCircle([lat, lng], node.nodeId, {
           color,
-          radius: 6,
+          radius: isDestination ? 9 : 6,
           tooltip,
           onClick: () => onMarkerClick?.(node),
-          visible: false, // hide normal markers
+          visible: isDestination, // only show destination visibly
+          dashArray: isDestination ? "4 2" : undefined, // dotted circle look
         });
       })}
 

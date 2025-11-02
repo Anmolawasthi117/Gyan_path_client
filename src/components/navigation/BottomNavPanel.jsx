@@ -45,12 +45,13 @@ const BottomNavPanel = ({
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="fixed bottom-4 left-4 right-4 z-20 bg-white text-gray-800 px-4 py-3 rounded-2xl shadow-lg flex items-center justify-between space-x-2"
-      >
+  initial={{ y: 100, opacity: 0 }}
+  animate={{ y: 0, opacity: 1 }}
+  exit={{ y: 100, opacity: 0 }}
+  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+  className="fixed bottom-16 left-4 right-4 z-60 bg-white text-gray-800 px-4 py-3 rounded-2xl shadow-lg flex items-center justify-between space-x-2"
+>
+
         {/* Floor change buttons */}
         <div className="flex gap-2">
           {prevSegment && (

@@ -111,26 +111,23 @@ const Home = () => {
   if (showSplash) return <SplashScreen />;
 
   return (
-  <div className="flex flex-col w-full h-screen bg-gray-100 overflow-hidden">
-    {/* Search bar stays fixed at the top */}
-    <div className="z-50">
-      <SearchBar nodes={nodes} onSelectNode={handleDestSelect} />
-    </div>
+    <div className="flex flex-col w-full h-screen bg-gray-100 overflow-hidden">
+      <div className="z-50">
+        <SearchBar nodes={nodes} onSelectNode={handleDestSelect} />
+      </div>
 
-    {/* Main content area (scrollable if needed) */}
-    <div className="flex-1 relative z-10 overflow-hidden">
-      <Map
-        userLocation={userLoc}
-        onSelectLocation={handleMapClick}
-        nodes={nodes}
-        route={currentSegment}
-        currentFloor={currentFloor}
-      />
-    </div>
+      <div className="flex-1 relative z-10">
+        <Map
+          userLocation={userLoc}
+          Endnode={endNode?.nodeId}
+          onSelectLocation={handleMapClick}
+          nodes={nodes}
+          route={currentSegment}
+          currentFloor={currentFloor}
+        />
+      </div>
 
-    {/* Bottom controls and footer container */}
-    <div className="z-20 relative bg-white border-t border-gray-200">
-      <div className="relative">
+      <div className="z-20 relative">
         <ResetUserLocation onReset={handleResetUserLocation} />
         <BottomNavPanel
           route={route}
@@ -144,6 +141,7 @@ const Home = () => {
             if (!floorObj) return;
             setCurrentFloor(floorObj);
 
+            // Keep route intact, just update userLoc & startNode for stair/lift
             const seg = segments.find((s) => s.floor === nextFloorId);
             if (isNavigating && seg && seg.nodes.length > 0) {
               const stairNode = seg.nodes[0];
@@ -152,6 +150,7 @@ const Home = () => {
             }
           }}
         />
+
         <FloorSelector
           floors={floors}
           currentFloor={currentFloor}
@@ -159,6 +158,7 @@ const Home = () => {
             if (!next || next.id === currentFloor?.id) return;
             setCurrentFloor(next);
 
+            // Keep route intact, update user location for stair/lift
             const seg = segments.find((s) => s.floor === next.id);
             if (isNavigating && seg && seg.nodes.length > 0) {
               const stairNode = seg.nodes[0];
@@ -169,12 +169,9 @@ const Home = () => {
         />
       </div>
 
-      {/* 🧱 Footer pinned to bottom */}
       <Footer />
     </div>
-  </div>
-);
-
+  );
 };
 
 export default Home;

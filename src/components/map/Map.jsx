@@ -88,6 +88,7 @@ const MapClickHandler = ({ onSelectLocation, currentFloorId }) => {
 
 const Map = ({
   userLocation,
+  Endnode,
   nodes = [],
   route = [],
   currentFloor,
@@ -169,6 +170,7 @@ const Map = ({
           selectedNodeId={selectedNodeId}
           highlightedNodeId={highlightedNodeId}
           forceVisibleMarkers={forceVisibleMarkers}
+          destinationNodeId={Endnode}
         />
 
         {renderSize.width > 0 && renderSize.height > 0 && (
