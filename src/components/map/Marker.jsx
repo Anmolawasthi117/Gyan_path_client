@@ -1,123 +1,88 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { CircleMarker, Tooltip } from "react-leaflet";
+import { gridToMapCoords } from "../../utils/transformCoords";
 
 const MarkerLayer = ({
   nodes = [],
   userLocation,
+  currentFloorId,
   onMarkerClick,
   selectedNodeId,
   highlightedNodeId,
-  renderSize = { width: 0, height: 0, offsetX: 0, offsetY: 0 },
-  zoom = 1,
-  dimNonUserNodes = false, // 👈 NEW FLAG for Map
 }) => {
-  const [activeTooltip, setActiveTooltip] = useState(null);
+  if (!nodes.length && !userLocation) return null;
 
-  useEffect(() => {
-    const handleClickOutside = () => setActiveTooltip(null);
-    window.addEventListener("click", handleClickOutside);
-    return () => window.removeEventListener("click", handleClickOutside);
-  }, []);
+  const renderCircle = (
+    latLng,
+    key,
+    { color = "#333", radius = 6, tooltip, onClick, visible = true } = {}
+  ) => (
+    <CircleMarker
+      key={key}
+      center={latLng}
+      radius={radius}
+      pathOptions={{
+        color,
+        fillColor: color,
+        opacity: visible ? 1 : 0,
+        fillOpacity: visible ? 0.9 : 0,
+      }}
+      eventHandlers={onClick ? { click: onClick } : {}}
+    >
+      {tooltip && (
+        <Tooltip direction="top" offset={[0, -8]} opacity={1}>
+          {tooltip}
+        </Tooltip>
+      )}
+    </CircleMarker>
+  );
 
-  if (!renderSize.width || !renderSize.height) return null;
-
-  const BASE_RADIUS = 6;
-
-  const getScreenPosition = (node) => {
-    const coords = node.coordinates ? node.coordinates : node;
-    const pctX = Number(coords.x);
-    const pctY = Number(coords.y);
-
-    const x = renderSize.offsetX + (pctX / 100) * renderSize.width;
-    const y = renderSize.offsetY + (pctY / 100) * renderSize.height;
-    return { x, y };
-  };
-
-  const renderDot = (node, key, { color = "#333", tooltip, opacity = 1 }) => {
-    const pos = getScreenPosition(node);
-    const size = BASE_RADIUS * 2;
-    const isActive = activeTooltip === key;
-
-    return (
-      <div
-        key={key}
-        onMouseEnter={() => setActiveTooltip(key)}
-        onMouseLeave={() => setActiveTooltip(null)}
-        onClick={(e) => {
-          e.stopPropagation();
-          setActiveTooltip((prev) => (prev === key ? null : key));
-          onMarkerClick?.(node);
-        }}
-        style={{
-          position: "absolute",
-          left: pos.x,
-          top: pos.y,
-          transform: "translate(-50%, -50%)",
-          width: size / zoom,
-          height: size / zoom,
-          borderRadius: "50%",
-          backgroundColor: color,
-          opacity,
-          cursor: "pointer",
-          transition: "all 0.15s ease-out",
-          pointerEvents: "auto",
-          zIndex: isActive ? 10 : 1,
-        }}
-      >
-        {tooltip && isActive && (
-          <div
-            style={{
-              position: "absolute",
-              bottom: "150%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              backgroundColor: "#222",
-              color: "white",
-              padding: "4px 8px",
-              borderRadius: "4px",
-              fontSize: "12px",
-              whiteSpace: "nowrap",
-              opacity: 0.95,
-              pointerEvents: "none",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-            }}
-          >
-            {tooltip}
-          </div>
-        )}
-      </div>
-    );
-  };
+  const floorNodes = nodes.filter(
+    (n) => String(n.coordinates.floor) === String(currentFloorId)
+  );
 
   return (
     <>
-      {nodes.map((node) => {
-        const isHighlighted = highlightedNodeId === node.nodeId;
-        const isSelected = selectedNodeId === node.nodeId;
+      {/* Hidden normal nodes */}
+      {floorNodes.map((node) => {
+        const { lat, lng } = gridToMapCoords({
+          ...node.coordinates,
+          floor: currentFloorId,
+        });
+        const color =
+          highlightedNodeId === node.nodeId
+            ? "limegreen"
+            : selectedNodeId === node.nodeId
+            ? "red"
+            : "#333";
 
-        // 👻 If dim mode enabled, fade out everything except user + route
-        const color = isHighlighted
-          ? "limegreen"
-          : isSelected
-          ? "red"
-          : dimNonUserNodes
-          ? "#666"
-          : "#333";
+        // Tooltip only if it's a room
+        const tooltip = node.type === "room" ? node.name : null;
 
-        const opacity = dimNonUserNodes && !isSelected && !isHighlighted ? 0 : 0.9;
-
-        return renderDot(node, node.nodeId, {
+        return renderCircle([lat, lng], node.nodeId, {
           color,
-          tooltip: node.name,
-          opacity,
+          radius: 6,
+          tooltip,
+          onClick: () => onMarkerClick?.(node),
+          visible: false, // hide normal markers
         });
       })}
 
+      {/* Visible user marker */}
       {userLocation &&
-        renderDot(userLocation, "user-dot", {
-          color: "dodgerblue",
-          tooltip: "You",
-          opacity: 1,
-        })}
+        (() => {
+          const point = userLocation.coordinates ?? userLocation;
+          const { lat, lng } = gridToMapCoords({
+            ...point,
+            floor: currentFloorId,
+          });
+          return renderCircle([lat, lng], "user-dot", {
+            color: "dodgerblue",
+            radius: 7,
+            tooltip: "You",
+            visible: true,
+          });
+        })()}
     </>
   );
 };
