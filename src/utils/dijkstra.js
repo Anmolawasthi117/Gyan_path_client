@@ -1,35 +1,39 @@
 // src/utils/dijkstra.js
-
 export function dijkstra(startId, endId, nodes) {
+  const nodeMap = new Map(nodes.map((n) => [n.nodeId, n]));
   const distances = {};
   const prev = {};
   const visited = new Set();
   const queue = [];
 
-  // Map nodeId -> node
-  const nodeMap = new Map(nodes.map((n) => [n.nodeId, n]));
-
-  for (const node of nodes) {
-    distances[node.nodeId] = Infinity;
-    prev[node.nodeId] = null;
+  for (const n of nodes) {
+    distances[n.nodeId] = Infinity;
+    prev[n.nodeId] = null;
   }
-
   distances[startId] = 0;
   queue.push({ nodeId: startId, distance: 0 });
 
   while (queue.length > 0) {
-    // Get node with min distance
     queue.sort((a, b) => a.distance - b.distance);
     const { nodeId } = queue.shift();
-
     if (visited.has(nodeId)) continue;
     visited.add(nodeId);
 
-    const current = nodeMap.get(nodeId);
-    if (!current) continue;
+    const curr = nodeMap.get(nodeId);
+    if (!curr) continue;
 
-    for (const conn of current.connections) {
-      const alt = distances[nodeId] + conn.distance;
+    for (const conn of curr.connections || []) {
+      if (!conn?.nodeId) continue;
+      const neighbor = nodeMap.get(conn.nodeId);
+      if (!neighbor) continue;
+
+      const dist = Number(conn.distance);
+      if (!Number.isFinite(dist)) {
+        console.warn(`⚠️ Missing distance between ${curr.name} and ${neighbor.name}`);
+        continue;
+      }
+
+      const alt = distances[nodeId] + dist;
       if (alt < distances[conn.nodeId]) {
         distances[conn.nodeId] = alt;
         prev[conn.nodeId] = nodeId;
@@ -38,14 +42,15 @@ export function dijkstra(startId, endId, nodes) {
     }
   }
 
-  // Build path
+  // build final path
   const path = [];
-  let currId = endId;
-  while (currId) {
-    const node = nodeMap.get(currId);
+  let walker = endId;
+  while (walker) {
+    const node = nodeMap.get(walker);
     if (node) path.unshift(node);
-    currId = prev[currId];
+    walker = prev[walker];
   }
 
+  console.log("✅ [Single-Floor Dijkstra Result]", path.map((n) => n.name));
   return path;
 }

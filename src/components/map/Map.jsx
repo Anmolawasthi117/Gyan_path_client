@@ -81,11 +81,7 @@ const MapClickHandler = ({ onSelectLocation, currentFloorId }) => {
         lat: e.latlng.lat,
         floor: currentFloorId,
       });
-      console.log("---- MAP CLICK ----");
-console.log("Raw latlng:", e.latlng);
-console.log("Converted gridPt:", gridPt);
-console.log("--------------------");
-
+      
       onSelectLocation?.(clampGridPoint(gridPt, currentFloorId));
     },
   });
@@ -115,13 +111,6 @@ const Map = ({
   const image = floorImages[currentFloor?.id] || groundFloor;
   const { width, height } =
     floorDimensions[currentFloor?.id] || { width: 2000, height: 3000 };
-  console.log("---- MAP IMAGE DEBUG ----");
-console.log("Floor ID:", currentFloor?.id);
-console.log("Image Dimensions (map bounds):", { width, height });
-console.log("FloorDimensions config:", floorDimensions[currentFloor?.id]);
-console.log("Image URL:", image);
-console.log("--------------------------");
-
   const bounds = useMemo(
     () => [
       [0, 0],
@@ -140,10 +129,6 @@ console.log("--------------------------");
       offsetX: 0,
       offsetY: 0,
     });
-    console.log("---- MAP CONTAINER SIZE ----");
-console.log("Rendered Container:", rect);
-console.log("-----------------------------");
-
   }, [currentFloor, route]);
 
   return (
