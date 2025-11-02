@@ -10,7 +10,7 @@ const FloorSelector = ({ floors = [], currentFloor, onChange }) => {
   };
 
   return (
-    <div className="absolute bottom-34 right-4 z-40">
+    <div className="absolute bottom-38 right-4 z-40">
       <button
         onClick={() => setOpen(!open)}
         className="bg-blue-600 text-white text-sm px-4 py-2 rounded-xl shadow-lg backdrop-blur hover:bg-blue-700 transition-all"
