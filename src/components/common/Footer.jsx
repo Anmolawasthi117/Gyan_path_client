@@ -1,6 +1,7 @@
+// src/components/navigation/Footer.jsx
 const Footer = () => {
   return (
-    <footer className="fixed bottom-0 left-0 w-full bg-white shadow-inner border-t border-gray-200 py-3 z-50">
+    <footer className="bg-white shadow-inner border-t border-gray-200 py-3">
       <div className="container mx-auto px-4 text-center text-sm text-gray-600">
         © 2025 <span className="font-semibold">GyanPath</span> · Engineered by 
         <span className="text-gray-800"> Anmol</span> & 
@@ -9,4 +10,5 @@ const Footer = () => {
     </footer>
   );
 };
+
 export default Footer;
