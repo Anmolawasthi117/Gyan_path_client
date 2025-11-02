@@ -13,12 +13,7 @@ const SearchResult = ({ node, onSelect, isHighlighted }) => {
       onMouseDown={handlePick}   // desktop / devtools
       onTouchStart={handlePick}  // real mobile tap
     >
-      {node.name}
-      {node.coordinates?.floor !== undefined && (
-        <span className="text-xs text-gray-500 ml-2">
-          (Floor {node.coordinates.floor})
-        </span>
-      )}
+      {node.type === "room" ? node.name : null}
     </li>
   );
 };

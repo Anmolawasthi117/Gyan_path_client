@@ -56,12 +56,15 @@ const MarkerLayer = ({
             ? "red"
             : "#333";
 
+        // Tooltip only if it's a room
+        const tooltip = node.type === "room" ? node.name : null;
+
         return renderCircle([lat, lng], node.nodeId, {
           color,
           radius: 6,
-          tooltip: node.name,
+          tooltip,
           onClick: () => onMarkerClick?.(node),
-          visible: false, // keep them invisible
+          visible: false, // hide normal markers
         });
       })}
 

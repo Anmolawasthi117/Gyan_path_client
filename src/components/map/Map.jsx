@@ -36,7 +36,7 @@ const floorImages = {
   "8649e62e-f5a9-46f7-ac75-801dfa194ade": Pharmaceutics,
 };
 
-// Fit map to image bounds
+// Automatically fit bounds when image changes
 const AutoFitImage = ({ bounds }) => {
   const map = useMap();
   useEffect(() => {
@@ -46,12 +46,10 @@ const AutoFitImage = ({ bounds }) => {
   return null;
 };
 
-/**
- * Handles both double-click (desktop) and double-tap (mobile) for setting user location
- */
+// Handles both double-click (desktop) and double-tap (mobile)
 const MapClickHandler = ({ onSelectLocation, currentFloorId }) => {
   const lastTapRef = useRef({ time: 0, latlng: null });
-  const DOUBLE_TAP_DELAY = 300; // ms
+  const DOUBLE_TAP_DELAY = 300;
 
   useMapEvents({
     click: (e) => {
@@ -81,7 +79,6 @@ const MapClickHandler = ({ onSelectLocation, currentFloorId }) => {
         lat: e.latlng.lat,
         floor: currentFloorId,
       });
-      
       onSelectLocation?.(clampGridPoint(gridPt, currentFloorId));
     },
   });
@@ -108,18 +105,21 @@ const Map = ({
     offsetY: 0,
   });
 
+  // Load correct floor image + dimensions
   const image = floorImages[currentFloor?.id] || groundFloor;
   const { width, height } =
     floorDimensions[currentFloor?.id] || { width: 2000, height: 3000 };
+
+  // keep correct aspect ratio
   const bounds = useMemo(
     () => [
       [0, 0],
-      [height, width],
+      [height, width], // Leaflet CRS.Simple uses [y, x]
     ],
     [width, height]
   );
 
-  // Measure container for RoutePolyline
+  // Measure container for route rendering
   useEffect(() => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
@@ -142,9 +142,17 @@ const Map = ({
         maxZoom={5}
         zoomControl={false}
         doubleClickZoom={false}
-        style={{ height: "100%", width: "100%" }}
+        style={{
+          width: "100%",
+          height: "100%",
+          background: "offwhite", // helps visualize margins for horizontal maps
+        }}
       >
-        <ImageOverlay url={image} bounds={bounds} />
+        <ImageOverlay
+          url={image}
+          bounds={bounds}
+          preserveAspectRatio="xMidYMid meet" // prevents stretching
+        />
         <AutoFitImage bounds={bounds} />
         <ZoomControl position="bottomright" />
 

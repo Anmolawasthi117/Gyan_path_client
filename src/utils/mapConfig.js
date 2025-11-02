@@ -7,14 +7,14 @@ export const SCALE_Y = 3000 / GRID_HEIGHT; // map height / 100
 
 // Keep per-floor image dimensions
 export const floorDimensions = {
-  "f1e15172-3c60-49e8-a03d-04435a6fdbe0": { width: 2000, height: 3000 },
-  "b963f437-1372-44d7-8e93-32d119fa0b26": { width: 776, height: 1255 },
-  "d69a80f9-033b-4ba8-937f-d56a53d47631": { width: 776, height: 1255 },
-  "398027a5-dab8-4ca3-acb0-cc86e2bc3751": { width: 776, height: 1255 },
-  "b314e388-6dfc-41c8-a740-9a263b8343ff": { width: 776, height: 1255 },
-  "3986c025-3ca6-4a24-a6a9-f042cf222bdd": { width: 1855, height: 900 },
-  "b4319f20-f88f-43ee-acc1-fdf5e605264a": { width: 1855, height: 900 },
-  "e92ee147-5156-48d9-be08-bf2eddfd33cc": { width: 1855, height: 900 },
-  "a7fe434e-46d3-44c3-8c2e-95fa05411abf": { width: 1855, height: 900 },
+  "8591c317-130d-49e0-a4b5-126a584b3bd7": { width: 2000, height: 3000 },
+  "90c9b098-02c8-4dd0-8693-5ca0a855a431": { width: 776, height: 1255 },
+  "772283e6-2898-44e5-86ee-24fa7de7fed6": { width: 776, height: 1255 },
+  "a60297b0-40ab-4123-a7f4-e451c5a9b343": { width: 776, height: 1255 },
+  "88a612bc-abd2-49ea-98bd-91c7f90067d4": { width: 776, height: 1255 },
+  "76342efe-9f01-434b-b9b9-e4cba9446d75": { width: 1855, height: 900 },
+  "46fa26bb-3cda-47d6-a351-8f18f5316d7c": { width: 1855, height: 900 },
+  "cefd4e4e-3a9e-4659-829d-debfa385fd11": { width: 1855, height: 900 },
+  "8649e62e-f5a9-46f7-ac75-801dfa194ade": { width: 1855, height: 900 },
 };
 
