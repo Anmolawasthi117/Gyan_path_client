@@ -6,7 +6,7 @@
   "floors": [
     {
       "id": "8591c317-130d-49e0-a4b5-126a584b3bd7",
-      "name": "ground floor",
+      "name": "Ground floor",
       "level": 0,
       "nodes": [
         {
@@ -333,38 +333,6 @@
           "connections": [
             {
               "nodeId": "20643dc1-5db1-4cae-ba51-a22f0ed76a71",
-              "distance": 0
-            }
-          ]
-        },
-        {
-          "nodeId": "45cecace-079d-47b0-adc2-beee4ef42822",
-          "name": "Spandan entrance 1",
-          "type": "room",
-          "coordinates": {
-            "x": 59.4,
-            "y": 30.73,
-            "floor": "8591c317-130d-49e0-a4b5-126a584b3bd7"
-          },
-          "connections": [
-            {
-              "nodeId": "2063bd1e-2899-4f44-bb5f-c95cdfef2d6e",
-              "distance": 0
-            }
-          ]
-        },
-        {
-          "nodeId": "ec3f4ec2-5621-4726-b5f3-3e8c013780dc",
-          "name": "Spandan entrance 2",
-          "type": "room",
-          "coordinates": {
-            "x": 59.2,
-            "y": 23.75,
-            "floor": "8591c317-130d-49e0-a4b5-126a584b3bd7"
-          },
-          "connections": [
-            {
-              "nodeId": "6b022f9d-f6fc-45c2-b666-c23d2853bfa5",
               "distance": 0
             }
           ]
@@ -1308,10 +1276,6 @@
           },
           "connections": [
             {
-              "nodeId": "6b022f9d-f6fc-45c2-b666-c23d2853bfa5",
-              "distance": 0
-            },
-            {
               "nodeId": "ae031b12-a63b-4137-80e9-72213c858d7a",
               "distance": 0
             },
@@ -1334,29 +1298,9 @@
             {
               "nodeId": "2063bd1e-2899-4f44-bb5f-c95cdfef2d6e",
               "distance": 0
-            }
-          ]
-        },
-        {
-          "nodeId": "6b022f9d-f6fc-45c2-b666-c23d2853bfa5",
-          "name": "Parking Lane GGCT",
-          "type": "hallway",
-          "coordinates": {
-            "x": 65.99,
-            "y": 23.8,
-            "floor": "8591c317-130d-49e0-a4b5-126a584b3bd7"
-          },
-          "connections": [
+            },
             {
               "nodeId": "e8ad77a7-595e-488c-94c2-e8aab7be7f16",
-              "distance": 0
-            },
-            {
-              "nodeId": "2de7bb16-0d6b-42d4-8c7c-a6435c1503bd",
-              "distance": 0
-            },
-            {
-              "nodeId": "ec3f4ec2-5621-4726-b5f3-3e8c013780dc",
               "distance": 0
             }
           ]
@@ -1371,10 +1315,6 @@
             "floor": "8591c317-130d-49e0-a4b5-126a584b3bd7"
           },
           "connections": [
-            {
-              "nodeId": "45cecace-079d-47b0-adc2-beee4ef42822",
-              "distance": 0
-            },
             {
               "nodeId": "4740c0eb-4e14-4cb0-ae24-f186e8eba4cc",
               "distance": 0
@@ -1540,7 +1480,7 @@
               "distance": 0
             },
             {
-              "nodeId": "6b022f9d-f6fc-45c2-b666-c23d2853bfa5",
+              "nodeId": "2de7bb16-0d6b-42d4-8c7c-a6435c1503bd",
               "distance": 0
             }
           ]
@@ -12949,11 +12889,11 @@
               "distance": 0
             },
             {
-              "nodeId": "e85aaeee-c461-4b97-a7de-50a8e077b39f",
+              "nodeId": "aec1f915-306e-47b4-8866-169de276d2dc",
               "distance": 0
             },
             {
-              "nodeId": "aec1f915-306e-47b4-8866-169de276d2dc",
+              "nodeId": "70ee2888-9805-4f61-ba8c-2254d2d39099",
               "distance": 0
             }
           ]
@@ -12969,11 +12909,11 @@
           },
           "connections": [
             {
-              "nodeId": "6d68613c-b123-4d19-abc7-362af627b160",
+              "nodeId": "ab2ddd95-2638-44a1-a300-b3fe994a3e30",
               "distance": 0
             },
             {
-              "nodeId": "ab2ddd95-2638-44a1-a300-b3fe994a3e30",
+              "nodeId": "70ee2888-9805-4f61-ba8c-2254d2d39099",
               "distance": 0
             }
           ]
@@ -13046,6 +12986,26 @@
           "connections": [
             {
               "nodeId": "024530db-d6a2-45f6-a014-adafd02c8f82",
+              "distance": 0
+            }
+          ]
+        },
+        {
+          "nodeId": "70ee2888-9805-4f61-ba8c-2254d2d39099",
+          "name": "MIA Lab",
+          "type": "room",
+          "coordinates": {
+            "x": 50.73,
+            "y": 27.94,
+            "floor": "46fa26bb-3cda-47d6-a351-8f18f5316d7c"
+          },
+          "connections": [
+            {
+              "nodeId": "e85aaeee-c461-4b97-a7de-50a8e077b39f",
+              "distance": 0
+            },
+            {
+              "nodeId": "6d68613c-b123-4d19-abc7-362af627b160",
               "distance": 0
             }
           ]

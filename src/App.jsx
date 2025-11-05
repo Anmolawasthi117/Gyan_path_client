@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home.jsx';
-import MapEditor from './pages/MapEditor.jsx';
+// import MapEditor from './pages/MapEditor.jsx';
 import ToastProvider from './components/common/ToastProvider';
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
       <ToastProvider />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/map-editor" element={<MapEditor />} />
+        {/* <Route path="/map-editor" element={<MapEditor />} /> */}
       </Routes>
     </BrowserRouter>
   );

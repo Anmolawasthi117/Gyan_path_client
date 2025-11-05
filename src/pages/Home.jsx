@@ -12,6 +12,9 @@ import { distanceSq } from "../utils/math";
 import { splitPathByFloor } from "../utils/splitPathByFloor";
 import { findMultiFloorPath } from "../utils/multiFloorRoute";
 
+// import Instructions from "../components/common/Instructions"; 
+
+
 const Home = () => {
   const [nodes, setNodes] = useState([]);
   const [floors, setFloors] = useState([]);
@@ -125,6 +128,9 @@ const Home = () => {
           route={currentSegment}
           currentFloor={currentFloor}
         />
+
+        {/* {!isNavigating && <Instructions />} */}
+
       </div>
 
       <div className="z-20 relative">

@@ -84,7 +84,7 @@ const MarkerLayer = ({
             floor: currentFloorId,
           });
           return renderCircle([lat, lng], "user-dot", {
-            color: "dodgerblue",
+            color: "#00D100",
             radius: 7,
             tooltip: "You",
             visible: true,
