@@ -4,23 +4,20 @@ import useDebounce from '../../hooks/useDebounce';
 
 const MIN_SEARCH_CHARS = 1;
 
-const SearchBar = ({ nodes = [], onSelectNode }) => {
+const SearchBar = ({ nodes = [], onSelectNode, onSetLocation, mode = "search" }) => {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 300);
-
   const [results, setResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
-
   const wrapperRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Local search logic
   useEffect(() => {
     const trimmed = debouncedQuery.trim().toLowerCase();
 
     if (trimmed.length >= MIN_SEARCH_CHARS) {
       const filtered = nodes.filter((n) => {
-        const name = n.name || n.nodeId || ""; // 🟢 commit: fallback
+        const name = n.name || n.nodeId || "";
         return name.toLowerCase().includes(trimmed);
       });
       setResults(filtered);
@@ -31,12 +28,9 @@ const SearchBar = ({ nodes = [], onSelectNode }) => {
     }
   }, [debouncedQuery, nodes]);
 
-  // Click outside to close
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (!wrapperRef.current?.contains(e.target)) {
-        setShowDropdown(false);
-      }
+      if (!wrapperRef.current?.contains(e.target)) setShowDropdown(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('touchstart', handleClickOutside);
@@ -47,9 +41,13 @@ const SearchBar = ({ nodes = [], onSelectNode }) => {
   }, []);
 
   const handleSelect = (node) => {
-    setQuery(node.name || node.nodeId); // 🟢 commit: safe fallback
+    if (mode === "setLocation") {
+      onSetLocation?.(node);
+    } else {
+      onSelectNode?.(node);
+    }
+    setQuery(''); // clear after selection
     setShowDropdown(false);
-    onSelectNode?.(node);
   };
 
   return (
@@ -60,7 +58,9 @@ const SearchBar = ({ nodes = [], onSelectNode }) => {
       <input
         ref={inputRef}
         type="text"
-        placeholder="Search location…"
+        placeholder={
+          mode === "setLocation" ? "Search and set your location…" : "Search destination…"
+        }
         className="w-full px-4 py-2 rounded-xl shadow-md bg-white focus:outline-none"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
@@ -78,8 +78,9 @@ const SearchBar = ({ nodes = [], onSelectNode }) => {
                   key={node.nodeId}
                   node={{
                     ...node,
-                    // 🟢 commit: show floor info in dropdown
-                    displayName: `${node.name || node.nodeId} (Floor ${node.coordinates?.floor || "?"})`
+                    displayName: `${node.name || node.nodeId} (Floor ${
+                      node.coordinates?.floor || "?"
+                    })`,
                   }}
                   onSelect={() => handleSelect(node)}
                 />

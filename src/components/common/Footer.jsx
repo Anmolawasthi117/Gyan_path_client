@@ -88,7 +88,7 @@ const Footer = () => {
             <ul className="list-disc list-inside space-y-2 text-[14px] leading-relaxed">
               <li>
                 <span className="font-medium">Set Your Start:</span> Double-tap your
-                location on the map to drop the{" "}
+                location on the map or search your nearest location in the search bar to drop the{" "}
                 <span className="text-green-600 font-semibold">
                   green starting pin
                 </span>
@@ -113,7 +113,7 @@ const Footer = () => {
                 stairs or an elevator, the map{" "}
                 <span className="font-semibold">won’t switch floors automatically</span>
                 . Tap the{" "}
-                <span className="font-medium text-gray-800">map button</span> in the
+                <span className="font-medium text-gray-800">⏩ map button</span> in the
                 bottom-left to change floors.
               </p>
             </div>

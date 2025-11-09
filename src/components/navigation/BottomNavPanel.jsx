@@ -59,15 +59,15 @@ const BottomNavPanel = ({
               onClick={() => onFloorChange(prevSegment.floor)}
               className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
             >
-              ⬇ {getFloorName(prevSegment.floor)}
+            ⏪ {getFloorName(prevSegment.floor)}
             </button>
           )}
           {nextSegment && (
             <button
               onClick={() => onFloorChange(nextSegment.floor)}
               className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-            >
-              ⬆ {getFloorName(nextSegment.floor)}
+            > 
+               ⏩  {getFloorName(nextSegment.floor)}
             </button>
           )}
         </div>

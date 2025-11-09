@@ -12,8 +12,7 @@ import { distanceSq } from "../utils/math";
 import { splitPathByFloor } from "../utils/splitPathByFloor";
 import { findMultiFloorPath } from "../utils/multiFloorRoute";
 
-// import Instructions from "../components/common/Instructions"; 
-
+// import Instructions from "../components/common/Instructions";
 
 const Home = () => {
   const [nodes, setNodes] = useState([]);
@@ -25,6 +24,7 @@ const Home = () => {
   const [userLoc, setUserLoc] = useState(null);
   const [showSplash, setShowSplash] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [searchMode, setSearchMode] = useState("setLocation"); // "setLocation" or "search"
 
   // Initialize floors and nodes
   useEffect(() => {
@@ -76,12 +76,28 @@ const Home = () => {
     if (nearest) {
       setUserLoc(clamped);
       setStartNode(nearest);
+      if (searchMode === "setLocation") setSearchMode("search");
     }
   };
 
-  // Handle destination selection from search
+  // ✅ When user searches and sets *their* current location
+  const handleSetUserLocation = (node) => {
+    setUserLoc(node.coordinates);
+    setStartNode(node);
+    setEndNode(null);
+    setRoute([]);
+    setIsNavigating(false);
+
+    const floorObj = floors.find((f) => f.id === node.floorId);
+    if (floorObj) setCurrentFloor(floorObj);
+
+    // switch mode to destination search after setting user location
+    setSearchMode("search");
+  };
+
+  // ✅ When user searches for *destination*
   const handleDestSelect = (node) => {
-    if (!startNode?.nodeId) return;
+    if (!startNode?.nodeId) return; // no starting point
 
     setEndNode(node);
     const path = findMultiFloorPath(projectSchema, startNode.nodeId, node.nodeId);
@@ -105,20 +121,29 @@ const Home = () => {
     setEndNode(null);
     setRoute([]);
     setIsNavigating(false);
+    setSearchMode("setLocation"); // go back to location setting mode
   }, []);
 
   // Current floor segment of the route
   const segments = useMemo(() => splitPathByFloor(route), [route]);
-  const currentSegment = segments.find((seg) => seg.floor === currentFloor?.id)?.nodes || [];
+  const currentSegment =
+    segments.find((seg) => seg.floor === currentFloor?.id)?.nodes || [];
 
   if (showSplash) return <SplashScreen />;
 
   return (
     <div className="flex flex-col w-full h-screen bg-gray-100 overflow-hidden">
+      {/* Top SearchBar */}
       <div className="z-50">
-        <SearchBar nodes={nodes} onSelectNode={handleDestSelect} />
+        <SearchBar
+          nodes={nodes}
+          mode={searchMode}
+          onSetLocation={handleSetUserLocation}
+          onSelectNode={handleDestSelect}
+        />
       </div>
 
+      {/* Map View */}
       <div className="flex-1 relative z-10">
         <Map
           userLocation={userLoc}
@@ -128,13 +153,12 @@ const Home = () => {
           route={currentSegment}
           currentFloor={currentFloor}
         />
-
-        {/* {!isNavigating && <Instructions />} */}
-
       </div>
 
+      {/* Controls */}
       <div className="z-20 relative">
         <ResetUserLocation onReset={handleResetUserLocation} />
+
         <BottomNavPanel
           route={route}
           destination={endNode}
