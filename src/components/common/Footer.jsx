@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Info, Github, Linkedin, Mail, MessageSquare } from "lucide-react";
 import anmol from "../../assets/anmol.jpeg";
 import nandini from "../../assets/nandini.jpeg";
@@ -8,37 +8,26 @@ const Footer = () => {
   const [showContact, setShowContact] = useState(false);
   const [viewCount, setViewCount] = useState(null);
 
-useEffect(() => {
-  const hasVisited = sessionStorage.getItem("view_logged");
+  // 👇 Prevent React 18 Strict Mode double-call in dev
+  const hasIncremented = useRef(false);
 
-  if (!hasVisited) {
+  useEffect(() => {
     const fetchCount = async () => {
       try {
         const res = await fetch("/api/views");
         const data = await res.json();
         setViewCount(data.count);
-        sessionStorage.setItem("view_logged", "true");
       } catch (err) {
         console.error("Failed to fetch global view count:", err);
       }
     };
-    fetchCount();
-  } else {
-    // Just fetch count without increment
-    const fetchExisting = async () => {
-      try {
-        const res = await fetch("/api/views?noIncrement=true");
-        const data = await res.json();
-        setViewCount(data.count);
-      } catch (err) {
-        console.error("Failed to fetch global view count:", err);
-      }
-    };
-    fetchExisting();
-  }
-}, []);
 
-
+    // run only once per real page load
+    if (!hasIncremented.current) {
+      fetchCount();
+      hasIncremented.current = true;
+    }
+  }, []);
 
   return (
     <>
@@ -121,11 +110,9 @@ useEffect(() => {
             <ul className="list-disc list-inside space-y-2 text-[14px] leading-relaxed">
               <li>
                 <span className="font-medium">Set Your Start:</span> Double-tap your
-                location on the map or search your nearest location in the search bar to drop the{" "}
-                <span className="text-green-600 font-semibold">
-                  green starting pin
-                </span>
-                .
+                location on the map or search your nearest location in the search bar
+                to drop the{" "}
+                <span className="text-green-600 font-semibold">green starting pin</span>.
               </li>
               <li>
                 <span className="font-medium">Find Your Destination:</span> Use the
@@ -134,8 +121,8 @@ useEffect(() => {
                 <span className="italic">Room 301</span>).
               </li>
               <li>
-                <span className="font-medium">Select & Go:</span> Pick your
-                destination — your route appears as a{" "}
+                <span className="font-medium">Select & Go:</span> Pick your destination
+                — your route appears as a{" "}
                 <span className="text-blue-600 font-semibold">blue line</span>.
               </li>
             </ul>
@@ -144,8 +131,8 @@ useEffect(() => {
               <p className="text-xs text-gray-600 sm:text-[13px]">
                 <span className="font-semibold">Note:</span> If your route includes
                 stairs or an elevator, the map{" "}
-                <span className="font-semibold">won’t switch floors automatically</span>
-                . Tap the{" "}
+                <span className="font-semibold">won’t switch floors automatically</span>.
+                Tap the{" "}
                 <span className="font-medium text-gray-800">⏩ map button</span> in the
                 bottom-left to change floors.
               </p>
@@ -183,9 +170,7 @@ useEffect(() => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
-              <h4 className="font-semibold text-gray-800 text-lg">
-                Meet the Developers
-              </h4>
+              <h4 className="font-semibold text-gray-800 text-lg">Meet the Developers</h4>
               <button
                 onClick={() => setShowContact(false)}
                 className="text-gray-500 hover:text-gray-700 transition text-sm"
