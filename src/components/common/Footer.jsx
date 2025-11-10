@@ -8,20 +8,36 @@ const Footer = () => {
   const [showContact, setShowContact] = useState(false);
   const [viewCount, setViewCount] = useState(null);
 
-  // 🚀 Fetch count from KV API on load
 useEffect(() => {
-  const fetchViewCount = async () => {
-    try {
-      const res = await fetch("/api/views");
-      const data = await res.json();
-      setViewCount(data.count);
-    } catch (err) {
-      console.error("Error fetching global count:", err);
-    }
-  };
+  const hasVisited = sessionStorage.getItem("view_logged");
 
-  fetchViewCount();
+  if (!hasVisited) {
+    const fetchCount = async () => {
+      try {
+        const res = await fetch("/api/views");
+        const data = await res.json();
+        setViewCount(data.count);
+        sessionStorage.setItem("view_logged", "true");
+      } catch (err) {
+        console.error("Failed to fetch global view count:", err);
+      }
+    };
+    fetchCount();
+  } else {
+    // Just fetch count without increment
+    const fetchExisting = async () => {
+      try {
+        const res = await fetch("/api/views?noIncrement=true");
+        const data = await res.json();
+        setViewCount(data.count);
+      } catch (err) {
+        console.error("Failed to fetch global view count:", err);
+      }
+    };
+    fetchExisting();
+  }
 }, []);
+
 
 
   return (
