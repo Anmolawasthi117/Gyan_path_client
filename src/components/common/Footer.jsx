@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Info, Github, Linkedin, Mail, MessageSquare } from "lucide-react";
 import anmol from "../../assets/anmol.jpeg";
 import nandini from "../../assets/nandini.jpeg";
@@ -6,6 +6,23 @@ import nandini from "../../assets/nandini.jpeg";
 const Footer = () => {
   const [showHelp, setShowHelp] = useState(false);
   const [showContact, setShowContact] = useState(false);
+  const [viewCount, setViewCount] = useState(null);
+
+  // 🚀 Fetch count from KV API on load
+useEffect(() => {
+  const fetchViewCount = async () => {
+    try {
+      const res = await fetch("/api/views");
+      const data = await res.json();
+      setViewCount(data.count);
+    } catch (err) {
+      console.error("Error fetching global count:", err);
+    }
+  };
+
+  fetchViewCount();
+}, []);
+
 
   return (
     <>
@@ -118,6 +135,15 @@ const Footer = () => {
               </p>
             </div>
 
+            {/* 🔥 Global View Count */}
+            <div className="mt-4 flex justify-center items-center gap-1 text-gray-500 text-xs">
+              <span>
+                {viewCount !== null
+                  ? `This site has been opened ${viewCount} times globally`
+                  : "Loading view count..."}
+              </span>
+            </div>
+
             <div className="mt-4 text-center">
               <button
                 onClick={() => setShowHelp(false)}
@@ -130,7 +156,7 @@ const Footer = () => {
         </div>
       )}
 
-      {/* ---------- Contact Modal (Anmol & Nandini) ---------- */}
+      {/* ---------- Contact Modal ---------- */}
       {showContact && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center z-[999]"

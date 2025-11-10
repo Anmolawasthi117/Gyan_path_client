@@ -12,6 +12,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.7",
     "@turf/turf": "^7.2.0",
+    "@vercel/kv": "^3.0.0",
     "axios": "^1.9.0",
     "clsx": "^2.1.1",
     "file-saver": "^2.0.5",
@@ -26,6 +27,7 @@
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.6.0",
     "react-zoom-pan-pinch": "^3.7.0",
+    "redis": "^5.9.0",
     "tailwindcss": "^4.1.7"
   },
   "devDependencies": {
