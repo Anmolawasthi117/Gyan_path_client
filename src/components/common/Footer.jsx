@@ -170,7 +170,7 @@ const Footer = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
-              <h4 className="font-semibold text-gray-800 text-lg">Meet the Developers</h4>
+              <h4 className="font-semibold text-gray-800 text-lg">Meet the Builders</h4>
               <button
                 onClick={() => setShowContact(false)}
                 className="text-gray-500 hover:text-gray-700 transition text-sm"
